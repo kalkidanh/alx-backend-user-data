@@ -8,7 +8,7 @@ class Auth():
     """ Define the authentication system."""
 
     def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
-        """ Returns true if the path is not in the list. """
+        """ Return true if the path is not in the list. """
         if not excluded_paths or not len(excluded_paths) or not path:
             return True
         for element in excluded_paths:
@@ -20,10 +20,17 @@ class Auth():
         return True
 
     def authorization_header(self, request=None) -> str:
-        """return the value of the header request Authorization"""
+        """ Return the value of the header request authorization."""
         if request:
             return request.headers.get('Authorization')
 
     def current_user(self, request=None) -> TypeVar('User'):
-        """returns None - request will be the Flask request object"""
+        """ Return None - request will be the Flask request object."""
         return None
+
+    def session_cookie(self, request=None):
+        """ Return the cookie value from a request."""
+        if request is None:
+            return None
+        session_name = getenv('SESSION_NAME')
+        return request.cookies.get(session_name)
