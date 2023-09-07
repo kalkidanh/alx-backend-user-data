@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """ Base class template to implement authentication systems."""
+from os import getenv
 from typing import List, TypeVar
 from flask import request
 
