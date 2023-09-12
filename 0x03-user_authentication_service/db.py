@@ -5,8 +5,10 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm.session import Session
+from sqlalchemy.exc import InvalidRequestError
+from sqlalchemy.orm.exc import NoResultFound
 from user import User, Base
+from typing import TypeVar
 
 
 class DB:
@@ -38,4 +40,13 @@ class DB:
         session = self._session
         session.add(user)
         session.commit()
+        return user
+
+    def find_user_by(self, **kwargs) -> User:
+        """ Return the first row of the user table."""
+        if not kwargs:
+            raise InvalidRequestError
+        user = self._session.query(User).filter_by(**kwargs).first()
+        if not user:
+            raise NoResultFound
         return user
