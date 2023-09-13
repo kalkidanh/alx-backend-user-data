@@ -10,6 +10,9 @@ from sqlalchemy.orm.exc import NoResultFound
 from user import User, Base
 from typing import TypeVar
 
+VALID_FIELDS = ['id', 'email', 'hashed_password', 'session_id',
+                'reset_token']
+
 
 class DB:
     """DB class
@@ -44,9 +47,20 @@ class DB:
 
     def find_user_by(self, **kwargs) -> User:
         """ Return the first row of the user table."""
-        if not kwargs:
+        if not kwargs or any(x not in VALID_FIELDS for x in kwargs):
             raise InvalidRequestError
-        user = self._session.query(User).filter_by(**kwargs).first()
-        if not user:
+        session = self._session
+        try:
+            return session.query(User).filter_by(**kwargs).one()
+        except Exception:
             raise NoResultFound
-        return user
+
+    def update_user(self, user_id: int, **kwargs) -> None:
+        """update_user."""
+        session = self._session
+        user = self.find_user_by(id=user_id)
+        for k, v in kwargs.items():
+            if k not in VALID_FIELDS:
+                raise ValueError
+            setattr(user, k, v)
+        session.commit()
